@@ -54,22 +54,15 @@ void setup() {
 
   //Altimeter Setup
 
-  //Wait for Launch Command
-  String launch = "";
-  while(launch != "launch" && launch != "abort"){
-    launch = Serial.read();
-  }
-  if(launch=="launch"){
-    clampServos.write(0);
-  } else{
-    while(true){
-
-    }
-  }
+  delay(300000);
 }
 
+int startTime = millis();
+int delayTime = 1000;
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  if((millis()-startTime)==delayTime){
+    startTime = millis();
+  }
 }
