@@ -22,6 +22,12 @@ const int paraMechPin = A9;
 PWMServo clampServos;
 PWMServo chuteMech;
 
+//Altimeter Setup
+  Adafruit_BMP280 bmp; // I2C
+  //Adafruit_BMP280 bmp(BMP_CS); // hardware SPI
+  //Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
+
+
 //Temporary storage for reading from EEPROM
 double data = 0;
 
@@ -52,17 +58,39 @@ void setup() {
   clampServos.attach(clampServoPin);
   chuteMech.attach(paraMechPin);
 
-  //Altimeter Setup
+  
 
   delay(300000);
 }
 
 int startTime = millis();
 int delayTime = 1000;
+double maxAltitude;
+double previousAltitude;
+double currentAltitude;
+
+//States
+boolean ascent = false;
+boolean descent = false;
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if((millis()-startTime)==delayTime){
+  if((millis()-startTime)%delayTime == 0){
     startTime = millis();
-  }
+    previousAltitude = currentAltitude;
+    currentAltitude = bmp.readPressure();
+    if(currentAltitude < previousAltitude || ascent == true){
+      ascent = true;
+      if(currentAltitude > previousAltitude){
+        descent = true;
+        maxAltitude = currentAltitude;
+        delay(500);
+        currentAltitude = bmp.readPressure();
+        if(currentAltitude > previousAltitude){
+          chuteMech.write(180);
+        } else{
+          descent = false;
+        }
+      }
+    }
 }
