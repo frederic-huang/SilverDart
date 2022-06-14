@@ -34,6 +34,7 @@ double data = 0;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  EEPROM.begin();
   Serial.println("Flight Computer in Startup");
 
   //Output all stored flight data fro last flight
@@ -58,9 +59,9 @@ void setup() {
   clampServos.attach(clampServoPin);
   chuteMech.attach(paraMechPin);
 
-  
-
   delay(300000);
+  double startAltitude = bmp.readPressure();
+  EEPROM.put(0, startAltitude);
 }
 
 int startTime = millis();
@@ -79,19 +80,29 @@ void loop() {
     startTime = millis();
     previousAltitude = currentAltitude;
     currentAltitude = bmp.readPressure();
-    if(currentAltitude < previousAltitude || ascent == true){
-      ascent = true;
+    if(currentAltitude < previousAltitude){
+      delay(250);
+      currentAltitude = bmp.readPressure();
+      if(currentAltitude < previousAltitude){
+        ascent = true;
+      }
+    }
+    if(ascent == true){
       if(currentAltitude > previousAltitude){
-        descent = true;
-        maxAltitude = currentAltitude;
+        maxAltitude = previousAltitude;
         delay(500);
         currentAltitude = bmp.readPressure();
         if(currentAltitude > previousAltitude){
+          descent = true;
           chuteMech.write(180);
-        } else{
-          descent = false;
         }
       }
+    }
+    //Store max altitude data to EEPROM
+    if(descent == true){
+      delay(15000);
+          EEPROM.put(1, maxAltitude);
+      delay(120000);
     }
   }
 }
