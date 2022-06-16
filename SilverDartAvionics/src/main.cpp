@@ -17,7 +17,6 @@ const int paraMechPin = A9;
 #define BMP_MOSI (11)
 #define BMP_CS (10)
 
-
 //Defining Servos
 PWMServo clampServos;
 PWMServo chuteMech;
@@ -26,7 +25,6 @@ PWMServo chuteMech;
   Adafruit_BMP280 bmp; // I2C
   //Adafruit_BMP280 bmp(BMP_CS); // hardware SPI
   //Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
-
 
 //Temporary storage for reading from EEPROM
 double data = 0;
@@ -61,7 +59,9 @@ void setup() {
 
   delay(300000);
   double startAltitude = bmp.readPressure();
+  double temperature = bmp.readTemperature();
   EEPROM.put(0, startAltitude);
+  EEPROM.put(1, temperature);
 }
 
 int startTime = millis();
@@ -76,32 +76,32 @@ boolean descent = false;
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if((millis()-startTime)%delayTime == 0){
-    startTime = millis();
-    previousAltitude = currentAltitude;
-    currentAltitude = bmp.readPressure();
-    if(currentAltitude < previousAltitude){
-      delay(250);
+  if((millis()-startTime)%delayTime == 0){        //Ensure time interval is met
+    startTime = millis();                         //Sets new start time for next time interval check
+    previousAltitude = currentAltitude;           //Stores the most recent altitude as the previous altitude
+    currentAltitude = bmp.readPressure();         //New altitude pressure is read
+    if(currentAltitude < previousAltitude){       //Comparison made for ascent state check
+      delay(250);                       
       currentAltitude = bmp.readPressure();
-      if(currentAltitude < previousAltitude){
-        ascent = true;
+      if(currentAltitude < previousAltitude){     //Double check to verify
+        ascent = true;                            //Sets state to ascent
       }
     }
     if(ascent == true){
-      if(currentAltitude > previousAltitude){
-        maxAltitude = previousAltitude;
+      if(currentAltitude > previousAltitude){     //Comparison made to check for descent
+        maxAltitude = previousAltitude;           //Sets previous altitude as max altitude
         delay(500);
         currentAltitude = bmp.readPressure();
-        if(currentAltitude > previousAltitude){
-          descent = true;
-          chuteMech.write(180);
+        if(currentAltitude > previousAltitude){   //Double check to verify vehicle is descending
+          descent = true;                         //Sets state to descent
+          chuteMech.write(180);                   //Deploy parachute8
         }
       }
     }
     //Store max altitude data to EEPROM
     if(descent == true){
       delay(15000);
-          EEPROM.put(1, maxAltitude);
+          EEPROM.put(2, maxAltitude);
       delay(120000);
     }
   }
