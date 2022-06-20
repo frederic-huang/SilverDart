@@ -12,19 +12,18 @@ void setup() {
  
   launchClamp.attach(servoPin);
   launchClamp.write(0);
-  delay(1000);
-  String command = Serial.readString();
-
-  if(command == "Send It!"){
-    delay(200);
-    launchClamp.write(180);
-    delay(500);
-  }
-
+  delay(15000);
+  launchClamp.write(180);
 }
+
 
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  // String command = Serial.readString();
+  // if(command == "Send It!"){
+  //   delay(200);
+  //   launchClamp.write(180);
+  //   delay(500);
+  //}
 }
