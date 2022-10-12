@@ -9,9 +9,9 @@ In order to safely recover the rocket, the rocket will have avionics that consis
 <img width="190" alt="Screenshot 2022-05-20 132150" src="https://user-images.githubusercontent.com/18745362/174855904-3c4e4c81-c9cf-4287-8c77-e1c552ad5e42.png">
 
 ## Known Issues
-- Quick disconnect leaking air so vehicle cannot be pressurized
 - No data logging since a temporary workaround had to be implemented
 - Launch pad launch clamp/QD release mechanism doesn't work
+  - Temporary manual release solution implemented
 
 ## Potential Issues
 - Parachute deployment sequence logic unreliable
